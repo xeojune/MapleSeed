@@ -32,6 +32,15 @@ interface InputProps {
     R: number;
     F_o: number;
   }) => void;
+  onPotionCalculate: (values: {
+    P_oil: number;
+    P_core: number;
+    P_stone: number;
+    P_potion: number;
+    P_small_potion: number;
+    F: number;
+    total_asset: number;
+  }) => void;
   onTabChange: () => void;
 }
 
@@ -59,7 +68,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-const Input = ({ onCalculate, onBreakEvenCalculate, onTabChange }: InputProps) => {
+const Input = ({ onCalculate, onBreakEvenCalculate, onPotionCalculate, onTabChange }: InputProps) => {
   const [tabValue, setTabValue] = useState(0);
   const [hasDiscountedFee, setHasDiscountedFee] = useState(false);
 
@@ -112,6 +121,7 @@ const Input = ({ onCalculate, onBreakEvenCalculate, onTabChange }: InputProps) =
         <Tabs value={tabValue} onChange={handleTabChange} centered>
           <Tab label="수익 계산" />
           <Tab label="손익분기점 계산" />
+          <Tab label="재물비약 계산" />
         </Tabs>
       </Box>
 
@@ -239,6 +249,120 @@ const Input = ({ onCalculate, onBreakEvenCalculate, onTabChange }: InputProps) =
                 sx={{ mt: 2 }}
               >
                 손익분기점 계산하기
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={2}>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          
+          const feeRate = hasDiscountedFee ? 0.03 : 0.05;
+          
+          onPotionCalculate({
+            P_oil: Number(formData.get('P_oil')) * 10000,
+            P_core: Number(formData.get('P_core')),
+            P_stone: Number(formData.get('P_stone')),
+            P_potion: Number(formData.get('P_potion')) * 10000,
+            P_small_potion: Number(formData.get('P_small_potion')) * 10000,
+            F: feeRate,
+            total_asset: Number(formData.get('total_asset')) * 100000000, // Convert from 억 to actual
+          });
+        }}>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="h6" gutterBottom>
+                재물비약 수익 계산
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="총 자산"
+                name="total_asset"
+                type="number"
+                inputProps={{ step: "0.1" }}
+                required
+                size="small"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">억</InputAdornment>,
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="씨앗 오일 1개 가격"
+                name="P_oil"
+                type="number"
+                inputProps={{ step: "0.1" }}
+                required
+                size="small"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">만</InputAdornment>,
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="최상급 아이템 결정 1개 가격"
+                name="P_core"
+                type="number"
+                required
+                size="small"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="현자의 돌 1개 가격"
+                name="P_stone"
+                type="number"
+                required
+                size="small"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="재물 획득의 비약 1개 판매가"
+                name="P_potion"
+                type="number"
+                inputProps={{ step: "0.1" }}
+                required
+                size="small"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">만</InputAdornment>,
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="소형 재물 획득의 비약 1개 판매가"
+                name="P_small_potion"
+                type="number"
+                inputProps={{ step: "0.1" }}
+                required
+                size="small"
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">만</InputAdornment>,
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 2 }}
+              >
+                계산하기
               </Button>
             </Grid>
           </Grid>
